@@ -4,7 +4,11 @@ local utils   = require"escriba.utils"
 ---Select inside the current paragraph
 local function select_inside_paragraph()
     local lnum = vim.fn.line('.')
-    local lims = actions.get_paragraph_limits(lnum)
+    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
+    local root = tree:parse()[1]:root()
+
+    local lims = actions.get_paragraph_limits(lnum, root)
+    if (lims == nil) then return end
     if (lims[1] == (-1)) or (lims[2] == (-1)) then return end
     vim.cmd('execute "normal ' .. lims[1] .. 'GV' .. lims[2] .. 'G"')
 end
@@ -12,7 +16,9 @@ end
 ---Move to the next paragraph from the current line
 local function move_to_next_paragraph()
     local lnum = vim.fn.line('.')
-    local next_paragraph = actions.get_next_paragraph(lnum)
+    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
+    local root = tree:parse()[1]:root()
+    local next_paragraph = actions.get_next_paragraph(lnum, root)
     vim.fn.cursor(next_paragraph, 1)
 end
 
@@ -24,6 +30,9 @@ end
 ---       dip    -- Delete all paragraphs
 ---@param command string #String defining the command to use at each paragraph.
 local function act_over_each_paragraph(command)
+
+    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
+
     -- Save the current keymaps to replace them in the future
     local nkeymap = utils.get_keymap('n', 'vip')
     local okeymap = utils.get_keymap('o', 'ip')
@@ -38,9 +47,8 @@ local function act_over_each_paragraph(command)
     vim.fn.cursor(1, 1)
     while true do
         prev_par = vim.fn.line('.')
-        local next_paragraph = actions.get_next_paragraph(vim.fn.line('.'))
+        local next_paragraph = actions.get_next_paragraph(vim.fn.line('.'), tree:parse()[1]:root())
         vim.fn.cursor(next_paragraph, 1)
-
         vim.cmd(string.format('execute "normal %s"', command))
         if prev_par == next_paragraph then
             break
