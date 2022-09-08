@@ -11,7 +11,7 @@ lua << EOF
         local textwidth = vim.bo.textwidth
         if args == "" then
             if (vim.bo.textwidth == 0) then
-                vim.notify('textwidth is not defined. Ignoring', vim.log.levels.WARN)
+                vim.notify('textwidth is not defined. Ignoring call...', vim.log.levels.WARN)
                 return
             end
         else
