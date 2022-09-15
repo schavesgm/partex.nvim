@@ -1,68 +1,75 @@
-local actions = require"escriba.actions"
-local utils   = require"escriba.utils"
+local M = {}
 
----Select inside the current paragraph
-local function select_inside_paragraph()
-    local lnum = vim.fn.line('.')
-    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
-    local root = tree:parse()[1]:root()
+-- Wrap over the escriba actions module to expose it
+M.actions = require"escriba.actions"
 
-    local lims = actions.get_paragraph_limits(lnum, root)
-    if (lims == nil) then return end
-    if (lims[1] == (-1)) or (lims[2] == (-1)) then return end
-    vim.cmd('execute "normal ' .. lims[1] .. 'GV' .. lims[2] .. 'G"')
-end
+---Format the document to a given length
+---@param opts table #Argument to be passed from command
+local function format_document(opts)
+    local bufnr = vim.api.nvim_get_current_buf()
+    local args  = opts.args
 
----Move to the next paragraph from the current line
-local function move_to_next_paragraph()
-    local lnum = vim.fn.line('.')
-    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
-    local root = tree:parse()[1]:root()
-    local next_paragraph = actions.get_next_paragraph(lnum, root)
-    vim.fn.cursor(next_paragraph, 1)
-end
-
----Act with a command over each paragraph in the document. The command must use
----"ip" as the object of the action; "ip" stands for "inside paragraph"
----Examples:
----       vipgq  -- Select the paragraph and then apply gq
----       cipHey -- Change each paragraph to "Hey"
----       dip    -- Delete all paragraphs
----@param command string #String defining the command to use at each paragraph.
-local function act_over_each_paragraph(command)
-
-    local tree = vim.treesitter.get_parser(vim.api.nvim_get_current_buf(), 'latex')
-
-    -- Save the current keymaps to replace them in the future
-    local nkeymap = utils.get_keymap('n', 'vip')
-    local okeymap = utils.get_keymap('o', 'ip')
-
-    -- Get some needed variables
-    local cursor, col, prev_par = vim.fn.line('.'), vim.fn.col('.'), vim.fn.line('.')
-
-    -- Set some needed keybinding for this function
-    vim.keymap.set("o", "ip",  select_inside_paragraph, {silent=true, buffer=true})
-    vim.keymap.set("n", "vip", select_inside_paragraph, {silent=true, buffer=true})
-
-    vim.fn.cursor(1, 1)
-    while true do
-        prev_par = vim.fn.line('.')
-        local next_paragraph = actions.get_next_paragraph(vim.fn.line('.'), tree:parse()[1]:root())
-        vim.fn.cursor(next_paragraph, 1)
-        vim.cmd(string.format('execute "normal %s"', command))
-        if prev_par == next_paragraph then
-            break
+    local textwidth = vim.bo.textwidth
+    if args == "" then
+        if (vim.bo.textwidth == 0) then
+            vim.notify('textwidth is not defined. Ignoring call...', vim.log.levels.WARN)
+            return
         end
+    else
+        textwidth = tonumber(opts.args)
+    end
+    vim.api.nvim_buf_set_option(bufnr, 'textwidth',  textwidth)
+    vim.api.nvim_set_option_value('colorcolumn', '+1', {scope='local'})
+    M.actions.act_over_each_paragraph("vipgq")
+end
+
+---Configure the plugina according to some settings
+M.setup = function(settings)
+
+    -- Default configuration of the plugin
+    local config = {
+        create_excmd = true,
+        keymaps = {
+            set = true,
+            operator = {
+                select_inside_lhs = 'ip',
+            },
+            normal = {
+                select_inside_lhs = 'ip',
+                move_to_next_paragraph = 'np',
+            }
+        }
+    }
+    config = (settings) and vim.tbl_deep_extend('force', config, settings) or config
+    local augroup = vim.api.nvim_create_augroup('Escriba', {clear=false})
+
+    -- Create the excommand if desired
+    if settings.create_excmd then
+        vim.api.nvim_create_autocmd('FileType', {
+            pattern='tex',
+            callback=function()
+                local bufnr = vim.api.nvim_get_current_buf()
+                vim.api.nvim_buf_create_user_command(bufnr, 'FormatTex', format_document, {bang=true, nargs='?'})
+            end,
+            group=augroup,
+        })
     end
 
-    -- Get back to the initial status
-    utils.set_keymap(nkeymap)
-    utils.set_keymap(okeymap)
-    vim.fn.cursor(cursor, col)
+    -- Create the keybindings if desired
+    if settings.keymaps.set then
+        vim.api.nvim_create_autocmd('FileType', {
+            pattern='tex',
+            callback=function()
+                -- Set the keymaps to select paragraphs
+                vim.keymap.set("o", "ip",  M.actions.select_inside_paragraph)
+                vim.keymap.set("n", "vip", M.actions.select_inside_paragraph)
+
+                -- Set keymap to move to the following paragraph
+                vim.keymap.set("n", "np", M.actions.move_to_next_paragraph)
+            end,
+            group=augroup,
+        })
+    end
 end
 
-return {
-    select_inside_paragraph = select_inside_paragraph,
-    move_to_next_paragraph  = move_to_next_paragraph,
-    act_over_each_paragraph = act_over_each_paragraph,
-}
+return M
