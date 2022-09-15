@@ -17,6 +17,9 @@ local function is_special_line(lnum)
 end
 
 
+---Check if a given line is inside a LaTeX paragraph in the current syntax tree
+---@param lnum number #Line number of be checked: vim-like indexing (1, $)
+---@param bounds table #Table containing all required bounds
 local function is_inside_paragraph(lnum, bounds)
     if not is_inside_matches(lnum, bounds.text_bounds) then
         return false
