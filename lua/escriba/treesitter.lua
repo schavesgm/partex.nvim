@@ -3,11 +3,11 @@ local queries = require"escriba.queries"
 ---Get a list containing all lines matching a query. The list writes the
 ---bound defining each match: {1, 2} means matched from line 1 to line 2
 ---@param query table #Treesitter latex query to be analysed
----@param stree table #Treesitter syntax tree
+---@param root table #Treesitter syntax tree root node
 ---@param bufnr number #Buffer of the file where the query is performed
 ---@return table #List-like table containing the lines containing matched nodes.
-local function get_all_lines_matching_query(query, stree, bufnr)
-    local matches = query:iter_matches(stree:parse():root(), bufnr)
+local function get_all_lines_matching_query(query, root, bufnr)
+    local matches = query:iter_matches(root, bufnr)
     if not matches then return {} end
 
     local bounds = {}
@@ -32,11 +32,10 @@ end
 
 ---Get all bounds required to check if a line is inside a paragraph. Only call this
 ---function if the syntax tree has been modified.
----@param stree table #Treesitter syntax tree
+---@param root table #Treesitter syntax tree root
 ---@param bufnr number #Buffer of the file where the query is performed
 ---@return table #Table containing all required list-like bounds
-local function get_all_bounds_required(stree, bufnr)
-    local root = stree:parse():root()
+local function get_all_bounds_required(root, bufnr)
     return {
         text_bounds = get_all_lines_matching_query(queries.text_query, root, bufnr),
         genv_bounds = get_all_lines_matching_query(queries.genv_query, root, bufnr),
