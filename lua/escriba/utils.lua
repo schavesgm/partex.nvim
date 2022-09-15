@@ -15,6 +15,7 @@ end
 ---Set a keymap from a keymap table
 ---@param keymap table #Table containing the keymap definition
 local function set_keymap(keymap)
+    if (keymap == nil) then return end
     local rhs  = (keymap.expr == 0) and keymap.callback or keymap.expr
     local opts = {buffer=keymap.buffer, silent=keymap.silent, remap=not keymap.noremap}
     vim.keymap.set(keymap.mode, keymap.lhs, rhs, opts)
