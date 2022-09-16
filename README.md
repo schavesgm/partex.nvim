@@ -1,10 +1,13 @@
 # malleable-wrap.nvim
-![malleable-wrap.nvim](./assets/video.gif)
 Not strictly soft-wrap, not strictly hard-wrap, just malleable-wrap.
+![malleable-wrap.nvim](./assets/video.gif)
 
 `malleable-wrap.nvim` allows malleable formatting of `TeX` paragraphs to a given desired length.
-Additionally, it provides several features to select, move between and act over paragraphs. In our
-definition, a paragraph is blocks of text in a `TeX` file that might contain inline equations or
+Additionally, it provides several features to select, move between and act over paragraphs. The
+plugin is entirely written in `lua`, and employs `treesitter` to perform the syntax queries. [The
+LaTeX treesitter parser is required](https://github.com/nvim-treesitter/nvim-treesitter).
+
+A paragraph is defined as a block of text in a `TeX` file that might contain inline equations or
 inline commands. For instance, the following latex snippet contains two paragraphs:
 ```latex
 \begin{equation}
@@ -28,35 +31,37 @@ ullamco ut ea consectetur et est culpa et culpa duis, $g(x) \simeq f(x)$
 Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur
 cupidatat~\cite{MyCiteOne, MyCiteTwo}
 ```
+Commented paragraphs, math environments and general environments are not paragraphs. Additionally,
+blank lines (`regex = ^$ \| ^\s\+$`) are not considered part of a paragraph.
 
 The purpose of the plugin is to allow editing latex files at different `textwidth` in different
 editors effortlessly. For example, one editor can work at `textwidth=200`, while other editor can
 work at `textwidth=100`. `malleable-wrap.nvim` allows both editors to work simultaneously on the
 same `TeX` files at their preferred `textwidth`, and only at the end, format their `TeX` files
-automatically to a given predetermined `textwidth`.
-
-`malleable-wrap.nvim` employs `treesitter`, as a result, it requires a compatible `neovim` version.
+automatically to a given predetermined `textwidth` using the exposed ex-command `FormatTex`. The
+plugin also allows movement and editing of LaTeX paragraphs.
 
 # Installation
 To install the plugin, use your desired `neovim` plugin manager. For example, `packer`
 ```lua
 use {'schavesgm/malleable-wrap.nvim'}
 ```
+The plugin requires, at least, `neovim 0.7`.
 
 # Configuration
-The plugin can be configured using
+`malleable-wrap.nvim` can be configured using
 ```lua
 require"malleable-wrap".setup()
 ```
 
 The default configuration is
 ```lua
-config = {
-    create_excmd = true,                      -- Create FormatTex command
+{
+    create_excmd = true,                      -- Create FormatTex command on load
     keymaps = {
-        set = true,                           -- Set all keymaps automatically
+        set = true,                           -- Set all keymaps automatically on load
         operator = {
-            select_inside_lhs = "ip",         -- Define operator mode keybind "ip"
+            select_inside_lhs = "ip",         -- Define operator mode keybind "ip" 
         },
         normal = {
             select_inside_lhs = "vip",        -- Define normal mode keybind "vip"
@@ -67,7 +72,8 @@ config = {
 ```
 The configuration can be easily updated by passing a table to `require"malleable-wrap".setup()`
 
-The plugin exposes several functions, which can be used to create new functionalities:
+Furthermore, `malleable-wrap.nvim` exposes several useful functions, which can be used to create new
+functionalities:
 ```lua
 require"malleable-wrap.actions" = {
     act_over_each_paragraph = <function 1>,                                                                                                                                               
@@ -82,4 +88,4 @@ require"malleable-wrap.actions" = {
 ```
 
 # Other
-This repository is `commitizen`-friendly.
+This repository is `commitizen`-friendly. Contributions are welcomed.
