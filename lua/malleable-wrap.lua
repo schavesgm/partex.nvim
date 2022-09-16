@@ -1,7 +1,10 @@
 local M = {}
 
--- Wrap over the actions module to expose it for future applications
-M.actions = require"malleable-wrap.actions"
+-- Expose some functions 
+M.actions = vim.tbl_deep_extend("force",
+    require"malleable-wrap.actions",
+    {get_all_bounds_required = require"malleable-wrap.treesitter".get_all_bounds_required}
+)
 
 ---Format the document to a given length
 ---@param opts table #Argument to be passed from command
