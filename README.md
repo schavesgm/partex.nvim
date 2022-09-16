@@ -41,6 +41,11 @@ same `TeX` files at their preferred `textwidth`, and only at the end, format the
 automatically to a given predetermined `textwidth` using the exposed ex-command `FormatTex`. The
 plugin also allows movement and editing of LaTeX paragraphs.
 
+## Disclaimer
+Parsing `LaTeX` files is difficult. As a result, the plugin might not be able to correctly parse
+some corner-cases. This also makes `FormatTex` relatively slow in really large files: few seconds to
+format a file containing 1000 thesis file.
+
 # Installation
 To install the plugin, use your desired `neovim` plugin manager. For example, `packer`
 ```lua
