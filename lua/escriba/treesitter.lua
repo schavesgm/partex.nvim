@@ -1,11 +1,11 @@
 local queries = require"escriba.queries"
 
----Get a list containing all lines matching a query. The list writes the
----bound defining each match: {1, 2} means matched from line 1 to line 2
+---Get a list containing all lines matching a query in zero-based indexing format. 
+---The list writes the -bound defining each match: {1, 2} means matched from line 1 to line 2
 ---@param query table #Treesitter latex query to be analysed
 ---@param root table #Treesitter syntax tree root node
 ---@param bufnr number #Buffer of the file where the query is performed
----@return table #List-like table containing the lines containing matched nodes.
+---@return table #List-like table containing the lines containing matched nodes
 local function get_all_lines_matching_query(query, root, bufnr)
     local matches = query:iter_matches(root, bufnr)
     if not matches then return {} end
@@ -19,12 +19,12 @@ local function get_all_lines_matching_query(query, root, bufnr)
 end
 
 ---Check if the current line number is inside any of the bounds
----@param lnum number #Line number of be analysed
+---@param lnum number #Line number to be analysed: vim-like indexing (1, $)
 ---@param bounds table #List-like table containing the bounds
 local function is_inside_matches(lnum, bounds)
     if (next(bounds) == nil) then return false end
     for _, region in ipairs(bounds) do
-        local is_inside = (region[1] <= lnum) and (lnum <= region[2])
+        local is_inside = (region[1] <= lnum - 1) and (lnum - 1 <= region[2])
         if is_inside then return true end
     end
     return false
