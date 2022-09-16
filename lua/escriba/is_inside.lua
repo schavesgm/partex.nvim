@@ -37,7 +37,7 @@ local function is_inside_paragraph(lnum, bounds)
         else
             local is_inside_tgen = is_inside_matches(lnum, bounds.tgen_bounds)
             local is_inside_inlm = is_inside_matches(lnum, bounds.inlm_bounds)
-            if not (is_inside_tgen and is_inside_inlm) then
+            if (is_inside_tgen or is_inside_inlm) then
                 return true
             end
         end
