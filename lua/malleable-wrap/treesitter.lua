@@ -1,4 +1,4 @@
-local queries = require"escriba.queries"
+local queries = require"malleable-wrap.queries"
 
 ---Get a list containing all lines matching a query in zero-based indexing format. 
 ---The list writes the -bound defining each match: {1, 2} means matched from line 1 to line 2

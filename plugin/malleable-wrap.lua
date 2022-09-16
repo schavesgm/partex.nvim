@@ -8,3 +8,6 @@ if vim.g.loaded_escriba == 1 then
     return
 end
 vim.g.loaded_escriba = 1
+
+-- TODO: Remove this in the future
+require"malleable-wrap".setup()
