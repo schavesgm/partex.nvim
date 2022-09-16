@@ -9,9 +9,11 @@ local get_all_bounds      = require"escriba.treesitter".get_all_bounds_required
 local function find_paragraph_start(lnum, bounds)
     if not is_inside_paragraph(lnum, bounds) then return -1 end
     for _, line in ipairs(vim.fn.reverse(vim.fn.range(1, lnum - 1))) do
-        local is_first = (line == 1)
-        if not is_inside_paragraph(line, bounds) or is_first then
+        if not is_inside_paragraph(line, bounds) then
             return line + 1
+        end
+        if line == 1 then
+            return line
         end
     end
 end
@@ -21,10 +23,13 @@ end
 ---@param bounds table #Table containing all the required bounds in the current syntax tree
 local function find_paragraph_end(lnum, bounds)
     if not is_inside_paragraph(lnum, bounds) then return -1 end
+    local last_line = vim.fn.line('$')
     for _, line in ipairs(vim.fn.range(lnum + 1, vim.fn.line('$'))) do
-        local is_last = (line == vim.fn.line('$'))
-        if not is_inside_paragraph(line, bounds) or is_last then
-            return line + (is_last and 0 or -1)
+        if not is_inside_paragraph(line, bounds) then
+            return line - 1
+        end
+        if (line == last_line) then
+            return line
         end
     end
     return lnum
@@ -51,7 +56,6 @@ local function get_next_paragraph(lnum, root, bufnr)
             start_line = paragraph_end + 1
         end
     end
-
     for _, line in ipairs(vim.fn.range(start_line, vim.fn.line('$'))) do
         if is_inside_paragraph(line, bounds) then return line end
     end
@@ -64,10 +68,10 @@ local function select_inside_paragraph()
     local bufnr = vim.api.nvim_get_current_buf()
     local tree  = vim.treesitter.get_parser(bufnr, 'latex')
 
-    local lims = get_paragraph_limits(lnum, tree:parse()[1]:root(), bufnr)
-    if (lims == nil) then return end
-    if (lims[1] == (-1)) or (lims[2] == (-1)) then return end
-    vim.cmd('execute "normal ' .. lims[1] .. 'GV' .. lims[2] .. 'G"')
+    local plims = get_paragraph_limits(lnum, tree:parse()[1]:root(), bufnr)
+    if (plims == nil) then return end
+    if (plims[1] == (-1)) or (plims[2] == (-1)) then return end
+    vim.cmd('execute "normal ' .. plims[1] .. 'GV' .. plims[2] .. 'G"')
 end
 
 ---Move to the next paragraph from the current line
