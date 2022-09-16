@@ -37,19 +37,16 @@ end
 
 ---Find the lines defining the current paragraph. Useful to select paragraphs
 ---@param lnum number #Current line to be used as reference
----@param root table #Treesitter syntax tree root node
----@param bufnr number #Buffer to be analysed
-local function get_paragraph_limits(lnum, root, bufnr)
-    local bounds = get_all_bounds(root, bufnr)
+---@param bounds table #Table containing the required bounds for the current buffer
+local function get_paragraph_limits(lnum, bounds)
     return {find_paragraph_start(lnum, bounds), find_paragraph_end(lnum, bounds)}
 end
 
 ---Find the line where the next paragraph starts from the current line
 ---@param lnum number #Current line to be used as reference
----@param root table #Treesitter syntax tree root node
----@param bufnr number #Buffer to be analysed
-local function get_next_paragraph(lnum, root, bufnr)
-    local bounds, start_line = get_all_bounds(root, bufnr), lnum
+---@param bounds table #Table containing the required bounds for the current buffer
+local function get_next_paragraph(lnum, bounds)
+    local start_line = lnum
     if is_inside_paragraph(lnum, bounds) then
         local paragraph_end = find_paragraph_end(lnum, bounds)
         if paragraph_end + 1 < vim.fn.line('$') then
@@ -63,23 +60,31 @@ local function get_next_paragraph(lnum, root, bufnr)
 end
 
 ---Select inside the current paragraph
-local function select_inside_paragraph()
+---@param bounds? table #Table containing the bounds of the current buffer
+local function select_inside_paragraph(bounds)
     local lnum  = vim.fn.line('.')
-    local bufnr = vim.api.nvim_get_current_buf()
-    local tree  = vim.treesitter.get_parser(bufnr, 'latex')
+    if (bounds == nil) then
+        local bufnr  = vim.api.nvim_get_current_buf()
+        local tree   = vim.treesitter.get_parser(bufnr, 'latex')
+        bounds = get_all_bounds(tree:parse()[1]:root(), bufnr)
+    end
 
-    local plims = get_paragraph_limits(lnum, tree:parse()[1]:root(), bufnr)
+    local plims = get_paragraph_limits(lnum, bounds)
     if (plims == nil) then return end
     if (plims[1] == (-1)) or (plims[2] == (-1)) then return end
     vim.cmd('execute "normal ' .. plims[1] .. 'GV' .. plims[2] .. 'G"')
 end
 
 ---Move to the next paragraph from the current line
-local function move_to_next_paragraph()
+---@param bounds? table #Table containing the bounds of the current buffer
+local function move_to_next_paragraph(bounds)
     local lnum  = vim.fn.line('.')
-    local bufnr = vim.api.nvim_get_current_buf()
-    local tree  = vim.treesitter.get_parser(bufnr, 'latex')
-    local next_paragraph = get_next_paragraph(lnum, tree:parse()[1]:root(), bufnr)
+    if (bounds == nil) then
+        local bufnr  = vim.api.nvim_get_current_buf()
+        local tree   = vim.treesitter.get_parser(bufnr, 'latex')
+        bounds = get_all_bounds(tree:parse()[1]:root(), bufnr)
+    end
+    local next_paragraph = get_next_paragraph(lnum, bounds)
     vim.fn.cursor(next_paragraph, 1)
 end
 
@@ -92,6 +97,7 @@ end
 ---@param command string #String defining the command to use at each paragraph.
 local function act_over_each_paragraph(command)
 
+    -- TODO: Here there is a factor of two in get_all_bounds that needs to be removed
     local bufnr = vim.api.nvim_get_current_buf()
     local tree  = vim.treesitter.get_parser(bufnr, 'latex')
 
@@ -102,14 +108,24 @@ local function act_over_each_paragraph(command)
     -- Get some needed variables
     local cursor, col, prev_par = vim.fn.line('.'), vim.fn.col('.'), vim.fn.line('.')
 
+    -- Table containing the bounds
+    local bounds = {}
+
+    -- Wrapper around select_inside_paragraph with desired bounds
+    local function wrapper_sip()
+        select_inside_paragraph(bounds)
+    end
+
     -- Set some needed keybinding for this function
-    vim.keymap.set("o", "ip",  select_inside_paragraph, {silent=true, buffer=true})
-    vim.keymap.set("n", "vip", select_inside_paragraph, {silent=true, buffer=true})
+    vim.keymap.set("o", "ip",  wrapper_sip, {silent=true, buffer=true})
+    vim.keymap.set("n", "vip", wrapper_sip, {silent=true, buffer=true})
 
     vim.fn.cursor(1, 1)
     while true do
+        -- Update the bounds and the previous paragraph on the current buffer
+        bounds = get_all_bounds(tree:parse()[1]:root(), bufnr)
         prev_par = vim.fn.line('.')
-        local next_paragraph = get_next_paragraph(vim.fn.line('.'), tree:parse()[1]:root(), bufnr)
+        local next_paragraph = get_next_paragraph(vim.fn.line('.'), bounds)
         vim.fn.cursor(next_paragraph, 1)
         vim.cmd(string.format('execute "normal %s"', command))
         if prev_par == next_paragraph then
