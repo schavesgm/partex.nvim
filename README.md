@@ -1,5 +1,5 @@
 # malleable-wrap.nvim
-![malleable-wrap.nvim](./assets/video.webm)
+![malleable-wrap.nvim](./assets/video.gif)
 Not strictly soft-wrap, not strictly hard-wrap, just malleable-wrap.
 
 `malleable-wrap.nvim` allows malleable formatting of `TeX` paragraphs to a given desired length.
