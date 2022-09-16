@@ -27,24 +27,26 @@ end
 M.setup = function(settings)
 
     -- Default configuration of the plugin
-    local config = {
+    M.config = {
         create_excmd = true,
         keymaps = {
             set = true,
             operator = {
-                select_inside_lhs = 'ip',
+                select_inside_lhs = "ip",
             },
             normal = {
-                select_inside_lhs = 'ip',
-                move_to_next_paragraph = 'np',
+                select_inside_lhs = "vip",
+                move_to_next_paragraph = "np",
             }
         }
     }
-    config = (settings) and vim.tbl_deep_extend('force', config, settings) or config
+    if (settings ~= nil) then
+        M.config = vim.tbl_deep_extend("force", M.config, settings)
+    end
     local augroup = vim.api.nvim_create_augroup('Escriba', {clear=false})
 
     -- Create the excommand if desired
-    if settings.create_excmd then
+    if M.config.create_excmd then
         vim.api.nvim_create_autocmd('FileType', {
             pattern='tex',
             callback=function()
@@ -56,16 +58,17 @@ M.setup = function(settings)
     end
 
     -- Create the keybindings if desired
-    if settings.keymaps.set then
+    if M.config.keymaps.set then
         vim.api.nvim_create_autocmd('FileType', {
             pattern='tex',
             callback=function()
+                local keymaps = M.config.keymaps
                 -- Set the keymaps to select paragraphs
-                vim.keymap.set("o", "ip",  M.actions.select_inside_paragraph)
-                vim.keymap.set("n", "vip", M.actions.select_inside_paragraph)
+                vim.keymap.set("o", keymaps.operator.select_inside_lhs,  M.actions.select_inside_paragraph)
+                vim.keymap.set("n", keymaps.normal.select_inside_lhs,    M.actions.select_inside_paragraph)
 
                 -- Set keymap to move to the following paragraph
-                vim.keymap.set("n", "np", M.actions.move_to_next_paragraph)
+                vim.keymap.set("n", keymaps.normal.move_to_next_paragraph, M.actions.move_to_next_paragraph)
             end,
             group=augroup,
         })
