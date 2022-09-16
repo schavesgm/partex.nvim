@@ -140,6 +140,8 @@ local function act_over_each_paragraph(command)
 end
 
 return {
+    find_paragraph_start    = find_paragraph_start,
+    find_paragraph_end      = find_paragraph_end,
     get_paragraph_limits    = get_paragraph_limits,
     get_next_paragraph      = get_next_paragraph,
     select_inside_paragraph = select_inside_paragraph,
