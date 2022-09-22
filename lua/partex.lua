@@ -2,8 +2,8 @@ local M = {}
 
 -- Expose some functions 
 M.actions = vim.tbl_deep_extend("force",
-    require"malleable-wrap.actions",
-    {get_all_bounds_required = require"malleable-wrap.treesitter".get_all_bounds_required}
+    require"partex.actions",
+    {get_all_bounds_required = require"partex.treesitter".get_all_bounds_required}
 )
 
 ---Format the document to a given length
@@ -46,7 +46,7 @@ M.setup = function(settings)
     if (settings ~= nil) then
         M.config = vim.tbl_deep_extend("force", M.config, settings)
     end
-    local augroup = vim.api.nvim_create_augroup('MalleableWrap', {clear=false})
+    local augroup = vim.api.nvim_create_augroup('Partex', {clear=false})
 
     -- Create the excommand if desired
     if M.config.create_excmd then

@@ -4,7 +4,7 @@ local regex_emptyline = vim.regex("\\(^$\\)\\|\\(^\\s\\+$\\)")
 local regex_keywdline = vim.regex(".*\\\\\\(" .. keywords .. "\\|begin\\).*")
 
 -- Needed functions to be used in the analysis
-local is_inside_matches = require"malleable-wrap.treesitter".is_inside_matches
+local is_inside_matches = require"partex.treesitter".is_inside_matches
 
 ---Check if a line is treated as special: contains special keywords or is empty
 ---@param lnum number #Line number to be checked: vim-like indexing (1, $)

@@ -1,7 +1,7 @@
 -- Load some needed functions
-local utils               = require"malleable-wrap.utils"
-local is_inside_paragraph = require"malleable-wrap.is_inside".is_inside_paragraph
-local get_all_bounds      = require"malleable-wrap.treesitter".get_all_bounds_required
+local utils               = require"partex.utils"
+local is_inside_paragraph = require"partex.is_inside".is_inside_paragraph
+local get_all_bounds      = require"partex.treesitter".get_all_bounds_required
 
 ---Find the line where the current paragraph starts
 ---@param lnum number #Current line to be used as reference
