@@ -58,39 +58,55 @@ require"partex".setup()
 The default configuration is
 ```lua
 {
-    create_excmd = true,                      -- Create FormatTex command
+    -- Create the excommand "FormatTex" automatically
+    create_excmd = true,
     keymaps = {
-        set = true,                           -- Set all keymaps automatically
+        -- Set the keybindings
+        set = true,
         operator = {
-            select_inside_lhs = "ip",         -- Define operator mode keybind "ip" 
+            -- Act inside a paragraph in operator mode
+            select_inside = "ip",
         },
         normal = {
-            select_inside_lhs = "vip",        -- Define normal mode keybind "vip"
-            move_to_next_paragraph = "np",    -- Define normal mode keybind "np"
+            -- Visually select inside a paragraph
+            select_inside = "vip",
+            -- Move to the next paragraph in the file
+            move_to_next  = "np",
+            -- Move to the previous paragraph in the file
+            move_to_prev  = "Np",
+            -- Move to the end of the current paragraph
+            move_to_end   = "mp",
+            -- Move to the start of the current paragraph
+            move_to_start = "Mp",
         }
     }
 }
 ```
 The configuration can be easily updated by passing a `lua` table to `require"partex".setup()`
 
-The command `:FormatTex textwidth` can take an integer argument, which sets the `textwidth` of the
-document, and formats the whole document to the desired length. If `textwidth` is already set, then
+The command `:FormatTex` can take an integer argument, which sets the `textwidth` of the document,
+and formats the whole document to the desired length. If `textwidth` is already set, then
 `:FormatTex` will try formatting the document to the current value of `textwidth`. `FormatTex` also
-sets `colorcolumn=+1` to allow a quick visualisation of the maximum `textwidth`. Due to the
+sets `colorcolumn=+1` to allow a quick visualisation of the maximum `textwidth` employed. Due to the
 continuous parsing required to format a whole file, `FormatTex` can take a few seconds in large
 files.
 
-Furthermore, `partex.nvim` exposes several useful functions, which can be used to create new
+Furthermore, `partex.nvim` exposes several useful functions, which can be employed to create new
 functionalities:
 ```lua
 require"partex.actions" = {
-    act_over_each_paragraph = <function 1>,                                                                                                                                               
-    find_paragraph_end      = <function 2>,                                                                                                                                                    
-    find_paragraph_start    = <function 3>,                                                                                                                                                  
-    get_all_bounds_required = <function 4>,                                                                                                                                               
-    get_next_paragraph      = <function 5>,                                                                                                                                                    
-    get_paragraph_limits    = <function 6>,                                                                                                                                                  
-    move_to_next_paragraph  = <function 7>,                                                                                                                                                
-    select_inside_paragraph = <function 8>                                                                                                                                                
+    get_paragraph_start        = <function>,
+    get_paragraph_end          = <function>,
+    get_paragraph_limits       = <function>,
+    get_next_paragraph         = <function>,
+    get_previous_paragraph     = <function>,
+    select_inside_paragraph    = <function>,
+    move_to_next_paragraph     = <function>,
+    move_to_previous_paragraph = <function>,
+    move_to_paragraph_start    = <function>,
+    move_to_paragraph_end      = <function>,
+    act_over_each_paragraph    = <function>,
+    get_all_bounds_required    = <function>,
+    is_inside_paragraph        = <function>,
 }
 ```
