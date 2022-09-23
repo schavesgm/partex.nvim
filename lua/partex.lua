@@ -3,7 +3,10 @@ local M = {}
 -- Expose some functions 
 M.actions = vim.tbl_deep_extend("force",
     require"partex.actions",
-    {get_all_bounds_required = require"partex.treesitter".get_all_bounds_required}
+    {
+        get_all_bounds_required = require"partex.treesitter".get_all_bounds_required,
+        is_inside_paragraph     = require"partex.is_inside".is_inside_paragraph,
+    }
 )
 
 ---Format the document to a given length
@@ -40,6 +43,7 @@ M.setup = function(settings)
             normal = {
                 select_inside_lhs = "vip",
                 move_to_next_paragraph = "np",
+                move_to_previous_paragraph = "Np",
             }
         }
     }
