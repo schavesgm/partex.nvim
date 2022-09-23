@@ -6,7 +6,8 @@ local get_all_bounds      = require"partex.treesitter".get_all_bounds_required
 ---Find the line where the current paragraph starts
 ---@param lnum number #Current line to be used as reference
 ---@param bounds table #Table containing all the required bounds in the current syntax tree
-local function find_paragraph_start(lnum, bounds)
+---@return number #Line number where the current paragraph starts or -1 if not inside paragraph
+local function get_paragraph_start(lnum, bounds)
     if not is_inside_paragraph(lnum, bounds) then return -1 end
     for _, line in ipairs(vim.fn.reverse(vim.fn.range(1, lnum - 1))) do
         if not is_inside_paragraph(line, bounds) then
@@ -21,7 +22,8 @@ end
 ---Find the line where the current paragraph terminates
 ---@param lnum number #Current line to be used as reference
 ---@param bounds table #Table containing all the required bounds in the current syntax tree
-local function find_paragraph_end(lnum, bounds)
+---@return number #Line number where the current paragraph starts or -1 if not inside paragraph
+local function get_paragraph_end(lnum, bounds)
     if not is_inside_paragraph(lnum, bounds) then return -1 end
     local last_line = vim.fn.line('$')
     for _, line in ipairs(vim.fn.range(lnum + 1, vim.fn.line('$'))) do
@@ -39,7 +41,7 @@ end
 ---@param lnum number #Current line to be used as reference
 ---@param bounds table #Table containing the required bounds for the current buffer
 local function get_paragraph_limits(lnum, bounds)
-    return {find_paragraph_start(lnum, bounds), find_paragraph_end(lnum, bounds)}
+    return {get_paragraph_start(lnum, bounds), get_paragraph_end(lnum, bounds)}
 end
 
 ---Find the line where the next paragraph starts from the current line
@@ -48,7 +50,7 @@ end
 local function get_next_paragraph(lnum, bounds)
     local start_line = lnum
     if is_inside_paragraph(lnum, bounds) then
-        local paragraph_end = find_paragraph_end(lnum, bounds)
+        local paragraph_end = get_paragraph_end(lnum, bounds)
         if paragraph_end + 1 < vim.fn.line('$') then
             start_line = paragraph_end + 1
         end
