@@ -38,12 +38,14 @@ M.setup = function(settings)
         keymaps = {
             set = true,
             operator = {
-                select_inside_lhs = "ip",
+                select_inside = "ip",
             },
             normal = {
-                select_inside_lhs = "vip",
-                move_to_next_paragraph = "np",
-                move_to_previous_paragraph = "Np",
+                select_inside = "vip",
+                move_to_next  = "np",
+                move_to_prev  = "Np",
+                move_to_end   = "mp",
+                move_to_start = "Mp",
             }
         }
     }
@@ -71,11 +73,14 @@ M.setup = function(settings)
             callback=function()
                 local keymaps = M.config.keymaps
                 -- Set the keymaps to select paragraphs
-                vim.keymap.set("o", keymaps.operator.select_inside_lhs,  M.actions.select_inside_paragraph)
-                vim.keymap.set("n", keymaps.normal.select_inside_lhs,    M.actions.select_inside_paragraph)
+                vim.keymap.set("o", keymaps.operator.select_inside,  M.actions.select_inside_paragraph)
+                vim.keymap.set("n", keymaps.normal.select_inside,    M.actions.select_inside_paragraph)
 
                 -- Set keymap to move to the following paragraph
-                vim.keymap.set("n", keymaps.normal.move_to_next_paragraph, M.actions.move_to_next_paragraph)
+                vim.keymap.set("n", keymaps.normal.move_to_next,  M.actions.move_to_next_paragraph)
+                vim.keymap.set("n", keymaps.normal.move_to_prev,  M.actions.move_to_previous_paragraph)
+                vim.keymap.set("n", keymaps.normal.move_to_end,   M.actions.move_to_paragraph_end)
+                vim.keymap.set("n", keymaps.normal.move_to_start, M.actions.move_to_paragraph_start)
             end,
             group=augroup,
         })
