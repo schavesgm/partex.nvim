@@ -1,7 +1,7 @@
 -- Regex employed to match lines
 local keywords = 'section\\|subsection\\|subsubsection\\|chapter\\|documentclass'
 local regex_emptyline = vim.regex("\\(^$\\)\\|\\(^\\s\\+$\\)")
-local regex_keywdline = vim.regex(".*\\\\\\(" .. keywords .. "\\|begin\\).*")
+local regex_keywdline = vim.regex(".*\\\\\\(" .. keywords .. "\\|begin\\|end\\).*")
 
 -- Needed functions to be used in the analysis
 local is_inside_matches = require"partex.treesitter".is_inside_matches
