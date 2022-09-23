@@ -9,7 +9,7 @@ local genv_query = parse_query('latex',
     (
         (generic_environment
             begin: (begin
-                name: (curly_group_text) @marker (#not-eq? @marker "{document}")
+                name: (curly_group_text) @marker (#not-any-of? @marker "{document}" "{abstract}")
             )
         ) @lines (#offset! @lines)
     )
