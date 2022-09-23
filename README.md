@@ -1,70 +1,66 @@
-# malleable-wrap.nvim
-Not strictly soft-wrap, not strictly hard-wrap, just malleable-wrap.
-![malleable-wrap.nvim](./assets/video.gif)
+# partex.nvim
+![partex.nvim](./assets/video.gif)
 
-`malleable-wrap.nvim` allows malleable formatting of `TeX` paragraphs to a given desired length.
-Additionally, it provides several features to select, move between and act over paragraphs. The
-plugin is entirely written in `lua`, and employs `treesitter` to perform the syntax queries. [The
-LaTeX treesitter parser is required](https://github.com/nvim-treesitter/nvim-treesitter).
+`partex.nvim` introduces several functions to deal with `LaTeX` files paragraph formatting and
+movement. The plugin is entirely written in `lua` and employs `treesitter` to perform the syntax
+queries; the `LaTeX` treesitter parser is
+[required](https://github.com/nvim-treesitter/nvim-treesitter).
 
-A paragraph is defined as a block of text in a `TeX` file that might contain inline equations or
-inline commands. For instance, the following latex snippet contains two paragraphs:
+A paragraph is defined as a block of text in a `LaTeX` file that might contain inline equations or
+inline commands. For instance, the following `LaTeX` snippet contains two paragraphs:
 ```latex
-\begin{equation}
-    f(x) = \sin(A\, x + \phi)
-    \label{eq:myeq1}
-\end{equation}
-% -- Paragraph A: 
-Lorem ipsum dolor sit amet, officia excepteur ex fugiat $f(x)$ reprehenderit enim labore culpa sint
-ad nisi Lorem pariatur mollit ex esse exercitation amet, eq.~(\ref{eq:myeq1}). Nisi anim cupidatat
-excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate
-dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla
-sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate.
-Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua
-reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat
-ullamco ut ea consectetur et est culpa et culpa duis, $g(x) \simeq f(x)$
-\begin{equation}
-    g(x) = \cos(B\, x)
-    \label{eq:myeq2}
-\end{equation}
-% -- Paragraph B:
-Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur
-cupidatat~\cite{MyCiteOne, MyCiteTwo}
+\begin{document}
+    \begin{equation}
+        f(x) = \sin(A\, x + \phi)
+        \label{eq:myeq1}
+    \end{equation}
+    % -- This is paragraph A: 
+    Lorem ipsum dolor sit amet, officia excepteur ex fugiat $f(x)$ reprehenderit enim labore culpa
+    sint ad nisi Lorem pariatur mollit ex esse exercitation amet, eq.~(\ref{eq:myeq1}). Nisi anim
+    cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet
+    voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit
+    irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris
+    cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt
+    duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim.
+    Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis, $g(x)
+    \simeq f(x)$
+    \begin{equation}
+        g(x) = \cos(B\, x)
+        \label{eq:myeq2}
+    \end{equation}
+    % -- This is paragraph B:
+    Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur
+    cupidatat~\cite{MyCiteOne, MyCiteTwo}
+\end{document}
 ```
-Commented paragraphs, math environments and general environments are not paragraphs. Additionally,
-blank lines (`regex = ^$ \| ^\s\+$`) are not considered part of a paragraph.
-
-The purpose of the plugin is to allow editing latex files at different `textwidth` in different
-editors effortlessly. For example, one editor can work at `textwidth=200`, while other editor can
-work at `textwidth=100`. `malleable-wrap.nvim` allows both editors to work simultaneously on the
-same `TeX` files at their preferred `textwidth`, and only at the end, format their `TeX` files
-automatically to a given predetermined `textwidth` using the exposed ex-command `FormatTex`. The
-plugin also allows movement and editing of LaTeX paragraphs.
+Commented paragraphs, isolated commands, math environments and general environments are not
+paragraphs. Additionally, blank lines (`regex = ^$ \| ^\s\+$`) are not considered part of a
+paragraph. Blocks of text inside `\begin{document} ... \end{document}` and `\begin{abstract} ...
+\end{abstract}` are considered paragraphs to allow an easy manipulation of any `LaTeX` file.
 
 ## Disclaimer
-Parsing `LaTeX` files is difficult. As a result, the plugin might not be able to correctly parse
-some corner-cases. This also makes `FormatTex` relatively slow in really large files: few seconds to
-format a file containing 1000 thesis file.
+Parsing `LaTeX` code is difficult. As a result, some special cases might not be correctly parsed.
+Contributions to solve corner-cases are welcomed.
 
 # Installation
 To install the plugin, use your desired `neovim` plugin manager. For example, `packer`
 ```lua
-use {'schavesgm/malleable-wrap.nvim'}
+use {'schavesgm/partex.nvim'}
 ```
 The plugin requires, at least, `neovim 0.7`.
 
 # Configuration
-`malleable-wrap.nvim` can be configured using
+`partex.nvim` can be configured using
 ```lua
-require"malleable-wrap".setup()
+require"partex".setup()
 ```
 
 The default configuration is
 ```lua
 {
-    create_excmd = true,                      -- Create FormatTex command on load
+    create_excmd = true,                      -- Create FormatTex command
     keymaps = {
-        set = true,                           -- Set all keymaps automatically on load
+        set = true,                           -- Set all keymaps automatically
         operator = {
             select_inside_lhs = "ip",         -- Define operator mode keybind "ip" 
         },
@@ -75,12 +71,12 @@ The default configuration is
     }
 }
 ```
-The configuration can be easily updated by passing a table to `require"malleable-wrap".setup()`
+The configuration can be easily updated by passing a `lua` table to `require"partex".setup()`
 
-Furthermore, `malleable-wrap.nvim` exposes several useful functions, which can be used to create new
+Furthermore, `partex.nvim` exposes several useful functions, which can be used to create new
 functionalities:
 ```lua
-require"malleable-wrap.actions" = {
+require"partex.actions" = {
     act_over_each_paragraph = <function 1>,                                                                                                                                               
     find_paragraph_end      = <function 2>,                                                                                                                                                    
     find_paragraph_start    = <function 3>,                                                                                                                                                  
@@ -91,6 +87,3 @@ require"malleable-wrap.actions" = {
     select_inside_paragraph = <function 8>                                                                                                                                                
 }
 ```
-
-# Other
-This repository is `commitizen`-friendly. Contributions are welcomed.
