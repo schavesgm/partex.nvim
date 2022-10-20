@@ -87,9 +87,7 @@ The configuration can be easily updated by passing a `lua` table to `require"par
 The command `:FormatTex` can take an integer argument, which sets the `textwidth` of the document,
 and formats the whole document to the desired length. If `textwidth` is already set, then
 `:FormatTex` will try formatting the document to the current value of `textwidth`. `FormatTex` also
-sets `colorcolumn=+1` to allow a quick visualisation of the maximum `textwidth` employed. Due to the
-continuous parsing required to format a whole file, `FormatTex` can take a few seconds in large
-files.
+sets `colorcolumn=+1` to allow a quick visualisation of the maximum `textwidth` employed.
 
 Furthermore, `partex.nvim` exposes several useful functions, which can be employed to create new
 functionalities:
