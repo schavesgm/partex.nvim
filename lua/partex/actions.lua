@@ -17,6 +17,7 @@ local function get_paragraph_start(lnum, bounds)
             return line
         end
     end
+    return lnum
 end
 
 ---Find the line where the current paragraph terminates

@@ -12,8 +12,8 @@ local function get_all_lines_matching_query(query, root, bufnr)
 
     local bounds = {}
     for _, _, metadata in matches do
-        local lbound, _, ubound, _ = unpack(metadata.content[1])
-        table.insert(bounds, {lbound, ubound})
+        local range = metadata[1].range
+        table.insert(bounds, {range[1], range[3]})
     end
     return bounds
 end
