@@ -153,27 +153,25 @@ local function move_to_paragraph_end(bounds)
 end
 
 ---Act with a command over each paragraph in the document. The command must use
----"ip" as the object of the action; "ip" stands for "inside paragraph"
+---"ip" as the object of the action; "ip" stands for "inside paragraph". The
+---actions are performed in reverse order to minimise the number of treesitter
+---calls.
 ---Examples:
 ---       vipgq  -- Select the paragraph and then apply gq
 ---       cipHey -- Change each paragraph to "Hey"
 ---       dip    -- Delete all paragraphs
 ---@param command string #String defining the command to use at each paragraph.
 local function act_over_each_paragraph(command)
-
-    -- TODO: Here there is a factor of two in get_all_bounds that needs to be removed
     local bufnr = vim.api.nvim_get_current_buf()
     local tree  = vim.treesitter.get_parser(bufnr, 'latex')
+    local bounds = get_all_bounds(tree:parse()[1]:root(), bufnr)
 
     -- Save the current keymaps to replace them in the future
     local nkeymap = utils.get_keymap('n', 'vip')
     local okeymap = utils.get_keymap('o', 'ip')
 
-    -- Get some needed variables
-    local cursor, col, prev_par = vim.fn.line('.'), vim.fn.col('.'), vim.fn.line('.')
-
-    -- Table containing the bounds
-    local bounds = {}
+    -- Save the current column to go back at the end
+    local col = vim.fn.col('.')
 
     -- Wrapper around select_inside_paragraph with desired bounds
     local function wrapper_sip()
@@ -184,15 +182,14 @@ local function act_over_each_paragraph(command)
     vim.keymap.set("o", "ip",  wrapper_sip, {silent=true, buffer=true})
     vim.keymap.set("n", "vip", wrapper_sip, {silent=true, buffer=true})
 
-    vim.fn.cursor(1, 1)
+    local cursor = vim.fn.line('$')
+    vim.fn.cursor(cursor, 1)
     while true do
-        -- Update the bounds and the previous paragraph on the current buffer
-        bounds = get_all_bounds(tree:parse()[1]:root(), bufnr)
-        prev_par = vim.fn.line('.')
-        local next_paragraph = get_next_paragraph(vim.fn.line('.'), bounds)
-        vim.fn.cursor(next_paragraph, 1)
+        cursor = vim.fn.line('.')
+        local prev_par = get_previous_paragraph(vim.fn.line('.'), bounds)
+        vim.fn.cursor(prev_par, 1)
         vim.cmd(string.format('execute "normal %s"', command))
-        if prev_par == next_paragraph then
+        if prev_par == cursor then
             break
         end
     end
