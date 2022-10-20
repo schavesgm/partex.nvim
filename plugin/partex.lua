@@ -1,5 +1,5 @@
-if 1 ~= vim.fn.has("nvim-0.7.0") then
-    vim.api.nvim_err_writeln "partex.nvim requires at least nvim-0.7.0."
+if 1 ~= vim.fn.has("nvim-0.8.0") then
+    vim.api.nvim_err_writeln "partex.nvim requires at least nvim-0.8.0."
     return
 end
 
