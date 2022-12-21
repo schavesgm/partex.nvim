@@ -12,6 +12,11 @@ M.actions = vim.tbl_deep_extend("force",
 ---Format the document to a given length
 ---@param opts table #Argument to be passed from command
 local function format_document(opts)
+    if vim.bo.filetype ~= "tex" then
+        vim.notify("Filetype is not tex. Ignoring...", vim.log.levels.WARN)
+        return
+    end
+
     local bufnr = vim.api.nvim_get_current_buf()
     local args  = opts.args
 
@@ -52,38 +57,34 @@ M.setup = function(settings)
     if (settings ~= nil) then
         M.config = vim.tbl_deep_extend("force", M.config, settings)
     end
-    local augroup = vim.api.nvim_create_augroup('Partex', {clear=false})
 
     -- Create the excommand if desired
     if M.config.create_excmd then
-        vim.api.nvim_create_autocmd('FileType', {
-            pattern='tex',
-            callback=function()
-                local bufnr = vim.api.nvim_get_current_buf()
-                vim.api.nvim_buf_create_user_command(bufnr, 'FormatTex', format_document, {bang=true, nargs='?'})
-            end,
-            group=augroup,
-        })
+        vim.api.nvim_create_user_command('FormatTex', format_document, {bang=true, nargs='?'})
     end
 
     -- Create the keybindings if desired
     if M.config.keymaps.set then
-        vim.api.nvim_create_autocmd('FileType', {
-            pattern='tex',
-            callback=function()
-                local keymaps = M.config.keymaps
-                -- Set the keymaps to select paragraphs
-                vim.keymap.set("o", keymaps.operator.select_inside,  M.actions.select_inside_paragraph)
-                vim.keymap.set("n", keymaps.normal.select_inside,    M.actions.select_inside_paragraph)
 
-                -- Set keymap to move to the following paragraph
-                vim.keymap.set("n", keymaps.normal.move_to_next,  M.actions.move_to_next_paragraph)
-                vim.keymap.set("n", keymaps.normal.move_to_prev,  M.actions.move_to_previous_paragraph)
-                vim.keymap.set("n", keymaps.normal.move_to_end,   M.actions.move_to_paragraph_end)
-                vim.keymap.set("n", keymaps.normal.move_to_start, M.actions.move_to_paragraph_start)
-            end,
-            group=augroup,
-        })
+        ---@param callback function: Callback function to execute after wrapping
+        local filetype_wrapper = function(callback)
+            if vim.bo.filetype ~= "tex" then
+                vim.notify("Filetype is not tex. Ignoring...", vim.log.levels.WARN)
+                return
+            end
+            callback()
+        end
+
+        local keymaps = M.config.keymaps
+        -- Set the keymaps to select paragraphs
+        vim.keymap.set("o", keymaps.operator.select_inside,  filetype_wrapper(M.actions.select_inside_paragraph))
+        vim.keymap.set("n", keymaps.normal.select_inside,    filetype_wrapper(M.actions.select_inside_paragraph))
+
+        -- Set keymap to move to the following paragraph
+        vim.keymap.set("n", keymaps.normal.move_to_next,  filetype_wrapper(M.actions.move_to_next_paragraph))
+        vim.keymap.set("n", keymaps.normal.move_to_prev,  filetype_wrapper(M.actions.move_to_previous_paragraph))
+        vim.keymap.set("n", keymaps.normal.move_to_start, filetype_wrapper(M.actions.move_to_paragraph_start))
+        vim.keymap.set("n", keymaps.normal.move_to_end,   filetype_wrapper(M.actions.move_to_paragraph_end))
     end
 end
 
