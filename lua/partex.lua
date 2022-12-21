@@ -72,7 +72,7 @@ M.setup = function(settings)
                 vim.notify("Filetype is not tex. Ignoring...", vim.log.levels.WARN)
                 return
             end
-            callback()
+            return callback
         end
 
         local keymaps = M.config.keymaps
