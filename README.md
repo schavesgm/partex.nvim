@@ -1,4 +1,4 @@
-# 📚 partex.nvim [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+# 📚 partex.nvim
 ![partex.nvim](./assets/video.gif)
 
 `partex.nvim` introduces several functions to deal with `LaTeX` files paragraph formatting and
