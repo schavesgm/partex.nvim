@@ -12,8 +12,11 @@ local function get_all_lines_matching_query(query, root, bufnr)
 
     local bounds = {}
     for _, _, metadata in matches do
-        local range = metadata[1].range
-        table.insert(bounds, {range[1], range[3]})
+        -- Avoid nil-accesing errors
+        if #metadata == 1 then
+            local range = metadata[1].range
+            table.insert(bounds, {range[1], range[3]})
+        end
     end
     return bounds
 end
