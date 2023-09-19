@@ -1,4 +1,4 @@
-local parse_query = vim.treesitter.parse_query
+local parse_query = vim.treesitter.query.parse
 
 -- Query employed to check if a line is text or not
 local text_query = parse_query('latex', [[((text) @lines (#offset! @lines))]])
